@@ -125,11 +125,15 @@
 
   .todo-main { flex: 1; min-width: 0; }
   .todo-text { font-size: 14px; line-height: 1.4; color: #e8e8e8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .todo-due { font-size: 11px; margin-top: 3px; }
-  .todo-due.normal { color: #444; }
-  .todo-due.soon { color: #fbbf24; font-weight: 500; }
-  .todo-due.overdue { color: #f87171; font-weight: 500; }
-  .todo-due.today { color: #60a5fa; font-weight: 500; }
+  .todo-due {
+    font-size: 12px; font-weight: 600; margin-top: 5px;
+    display: inline-flex; align-items: center;
+    padding: 3px 9px; border-radius: 7px; border: 1px solid transparent;
+  }
+  .todo-due.normal { color: #93c5fd; background: #17233a; border-color: #223452; }
+  .todo-due.soon { color: #fbbf24; background: #3a2f10; border-color: #5c4a15; }
+  .todo-due.overdue { color: #f87171; background: #3a1414; border-color: #5c1f1f; }
+  .todo-due.today { color: #60a5fa; background: #142236; border-color: #1e3554; }
 
   .badge { font-size: 11px; padding: 2px 8px; border-radius: 8px; white-space: nowrap; font-weight: 500; }
   .badge.업무 { background: #1e3a5f; color: #93c5fd; }
@@ -279,7 +283,7 @@ function todayStr() { return now.toLocaleDateString('sv-SE'); }
 
 async function fetchTodos() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?select=*&order=due_date.asc.nullslast,created_at.desc`, { headers });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?select=*&order=due_date.asc.nullsfirst,created_at.desc`, { headers });
     todos = await res.json();
     render();
   } catch(e) {
@@ -307,8 +311,8 @@ async function addTodo() {
     todos.unshift(item);
     todos.sort((a, b) => {
       if (!a.due_date && !b.due_date) return 0;
-      if (!a.due_date) return 1;
-      if (!b.due_date) return -1;
+      if (!a.due_date) return -1;
+      if (!b.due_date) return 1;
       return a.due_date.localeCompare(b.due_date);
     });
     input.value = ''; dueInput.value = ''; input.focus();
